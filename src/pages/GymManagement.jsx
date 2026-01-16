@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/axios";   // ✅ ROOT FIX
 import Modal from "../components/Modal";
 
 export default function GymManagement() {
@@ -12,23 +12,17 @@ export default function GymManagement() {
 
   const [editGym, setEditGym] = useState(null);
 
-  const token = localStorage.getItem("token");
-
   /* ================= LOAD GYMS ================= */
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/gyms", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+    api
+      .get("/gyms")
       .then((res) => {
         setGyms(res.data);
       })
       .catch((err) => {
         console.log("LOAD ERROR", err.response?.data || err.message);
       });
-  }, [token]);
+  }, []);
 
   /* ================= ADD GYM ================= */
   const addGym = () => {
@@ -37,16 +31,8 @@ export default function GymManagement() {
       return;
     }
 
-    axios
-      .post(
-        "http://localhost:5000/gyms",
-        { name, status },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+    api
+      .post("/gyms", { name, status })
       .then((res) => {
         setGyms([res.data.gym, ...gyms]);
         setName("");
@@ -60,12 +46,8 @@ export default function GymManagement() {
 
   /* ================= DELETE GYM ================= */
   const deleteGym = (id) => {
-    axios
-      .delete(`http://localhost:5000/gyms/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+    api
+      .delete(`/gyms/${id}`)
       .then(() => {
         setGyms(gyms.filter((g) => g._id !== id));
       })
@@ -76,19 +58,11 @@ export default function GymManagement() {
 
   /* ================= UPDATE GYM ================= */
   const updateGym = () => {
-    axios
-      .put(
-        `http://localhost:5000/gyms/${editGym._id}`,
-        {
-          name: editGym.name,
-          status: editGym.status,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+    api
+      .put(`/gyms/${editGym._id}`, {
+        name: editGym.name,
+        status: editGym.status,
+      })
       .then((res) => {
         setGyms(
           gyms.map((g) =>
