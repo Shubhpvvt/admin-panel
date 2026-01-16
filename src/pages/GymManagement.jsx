@@ -1,6 +1,22 @@
 import { useEffect, useState } from "react";
-import api from "../api/axios";   // ✅ ROOT FIX
+import axios from "axios";
 import Modal from "../components/Modal";
+
+/* ================= API (INLINE, BUILD-SAFE) ================= */
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+});
+
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 export default function GymManagement() {
   const [gyms, setGyms] = useState([]);
@@ -9,7 +25,6 @@ export default function GymManagement() {
 
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
-
   const [editGym, setEditGym] = useState(null);
 
   /* ================= LOAD GYMS ================= */
