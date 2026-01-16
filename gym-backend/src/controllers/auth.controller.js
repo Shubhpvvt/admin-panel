@@ -32,11 +32,9 @@ exports.createAdmin = async (req, res) => {
   }
 };
 
-// ================= LOGIN =================
+// ================= LOGIN (FIXED FOR VERCEL + RENDER) =================
 exports.login = async (req, res) => {
   try {
-    console.log("LOGIN HIT", req.body);
-
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -59,12 +57,21 @@ exports.login = async (req, res) => {
       { expiresIn: "1d" }
     );
 
+    // 🔥 IMPORTANT FIX (COOKIE FOR PRODUCTION)
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,        // REQUIRED for HTTPS (Vercel + Render)
+      sameSite: "None",    // REQUIRED for cross-site cookies
+      maxAge: 24 * 60 * 60 * 1000
+    });
+
     res.json({
       message: "Login successful",
-      token,
       user
     });
+
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
