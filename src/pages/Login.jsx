@@ -22,15 +22,13 @@ export default function Login() {
     try {
       setLoading(true);
 
+      // ✅ ONLY CHANGE: removed withCredentials
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/auth/login`,
-        { email, password },
-        {
-          withCredentials: true
-        }
+        { email, password }
       );
 
-      // 🔥 IMPORTANT: token + user dono save karo
+      // token + user save
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);
       }
