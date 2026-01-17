@@ -2,6 +2,22 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Modal from "../components/Modal";
 
+/* ================= API (INLINE, VERCEL SAFE) ================= */
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+});
+
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 export default function TrainerManagement() {
   const [trainers, setTrainers] = useState([]);
   const [editTrainer, setEditTrainer] = useState(null);
@@ -16,36 +32,28 @@ export default function TrainerManagement() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
 
-  const token = localStorage.getItem("token");
-
   /* ================= LOAD TRAINERS ================= */
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/trainers", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+    api
+      .get("/trainers")
       .then((res) => {
         setTrainers(res.data);
       })
       .catch((err) =>
         console.log("LOAD ERROR", err.response?.data || err.message)
       );
-  }, [token]);
+  }, []);
 
   /* ================= ADD TRAINER ================= */
   const addTrainer = () => {
-    if (!form.name || !form.email) return;
+    if (!form.name || !form.email) {
+      alert("Name & Email required");
+      return;
+    }
 
-    axios
-      .post("http://localhost:5000/trainers", form, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+    api
+      .post("/trainers", form)
       .then((res) => {
-        // ✅ CORRECT STATE UPDATE (FIX)
         setTrainers((prev) => [res.data.trainer, ...prev]);
 
         setForm({
@@ -63,12 +71,8 @@ export default function TrainerManagement() {
 
   /* ================= DELETE TRAINER ================= */
   const deleteTrainer = (id) => {
-    axios
-      .delete(`http://localhost:5000/trainers/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+    api
+      .delete(`/trainers/${id}`)
       .then(() => {
         setTrainers((prev) => prev.filter((t) => t._id !== id));
       })
@@ -79,18 +83,9 @@ export default function TrainerManagement() {
 
   /* ================= UPDATE TRAINER ================= */
   const updateTrainer = () => {
-    axios
-      .put(
-        `http://localhost:5000/trainers/${editTrainer._id}`,
-        editTrainer,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+    api
+      .put(`/trainers/${editTrainer._id}`, editTrainer)
       .then((res) => {
-        // ✅ SAFE UPDATE
         setTrainers((prev) =>
           prev.map((t) =>
             t._id === editTrainer._id ? res.data.trainer : t
