@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import AppLayout from "./layout/AppLayout";
 import Login from "./pages/Login";
 
@@ -19,25 +19,177 @@ import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Roles from "./pages/Roles";
 
+/* 🔐 AUTH CHECK */
+const isAuthenticated = () => {
+  return !!localStorage.getItem("token");
+};
+
+/* 🔒 PROTECTED ROUTE WRAPPER */
+const Protected = ({ children }) => {
+  return isAuthenticated() ? children : <Navigate to="/" replace />;
+};
+
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
+      {/* LOGIN */}
+      <Route
+        path="/"
+        element={
+          isAuthenticated() ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <Login />
+          )
+        }
+      />
 
-      <Route path="/dashboard" element={<AppLayout><SuperAdminDashboard /></AppLayout>} />
-      <Route path="/gyms" element={<AppLayout><GymManagement /></AppLayout>} />
-      <Route path="/gym-owners" element={<AppLayout><GymOwnerManagement /></AppLayout>} />
-      <Route path="/trainers" element={<AppLayout><TrainerManagement /></AppLayout>} />
-      <Route path="/users" element={<AppLayout><UserManagement /></AppLayout>} />
+      {/* DASHBOARD & ALL PROTECTED PAGES */}
+      <Route
+        path="/dashboard"
+        element={
+          <Protected>
+            <AppLayout>
+              <SuperAdminDashboard />
+            </AppLayout>
+          </Protected>
+        }
+      />
 
-      <Route path="/membership-plans" element={<AppLayout><MembershipPlans /></AppLayout>} />
-      <Route path="/workout-plans" element={<AppLayout><WorkoutPlans /></AppLayout>} />
-      <Route path="/diet-plans" element={<AppLayout><DietPlans /></AppLayout>} />
-      <Route path="/attendance" element={<AppLayout><Attendance /></AppLayout>} />
-      <Route path="/payments" element={<AppLayout><Payments /></AppLayout>} />
-      <Route path="/reports" element={<AppLayout><Reports /></AppLayout>} />
-      <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
-      <Route path="/roles" element={<AppLayout><Roles /></AppLayout>} />
+      <Route
+        path="/gyms"
+        element={
+          <Protected>
+            <AppLayout>
+              <GymManagement />
+            </AppLayout>
+          </Protected>
+        }
+      />
+
+      <Route
+        path="/gym-owners"
+        element={
+          <Protected>
+            <AppLayout>
+              <GymOwnerManagement />
+            </AppLayout>
+          </Protected>
+        }
+      />
+
+      <Route
+        path="/trainers"
+        element={
+          <Protected>
+            <AppLayout>
+              <TrainerManagement />
+            </AppLayout>
+          </Protected>
+        }
+      />
+
+      <Route
+        path="/users"
+        element={
+          <Protected>
+            <AppLayout>
+              <UserManagement />
+            </AppLayout>
+          </Protected>
+        }
+      />
+
+      <Route
+        path="/membership-plans"
+        element={
+          <Protected>
+            <AppLayout>
+              <MembershipPlans />
+            </AppLayout>
+          </Protected>
+        }
+      />
+
+      <Route
+        path="/workout-plans"
+        element={
+          <Protected>
+            <AppLayout>
+              <WorkoutPlans />
+            </AppLayout>
+          </Protected>
+        }
+      />
+
+      <Route
+        path="/diet-plans"
+        element={
+          <Protected>
+            <AppLayout>
+              <DietPlans />
+            </AppLayout>
+          </Protected>
+        }
+      />
+
+      <Route
+        path="/attendance"
+        element={
+          <Protected>
+            <AppLayout>
+              <Attendance />
+            </AppLayout>
+          </Protected>
+        }
+      />
+
+      <Route
+        path="/payments"
+        element={
+          <Protected>
+            <AppLayout>
+              <Payments />
+            </AppLayout>
+          </Protected>
+        }
+      />
+
+      <Route
+        path="/reports"
+        element={
+          <Protected>
+            <AppLayout>
+              <Reports />
+            </AppLayout>
+          </Protected>
+        }
+      />
+
+      <Route
+        path="/settings"
+        element={
+          <Protected>
+            <AppLayout>
+              <Settings />
+            </AppLayout>
+          </Protected>
+        }
+      />
+
+      <Route
+        path="/roles"
+        element={
+          <Protected>
+            <AppLayout>
+              <Roles />
+            </AppLayout>
+          </Protected>
+        }
+      />
+
+      {/* FALLBACK */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
