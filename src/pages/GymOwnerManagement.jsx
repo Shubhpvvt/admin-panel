@@ -2,11 +2,26 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Modal from "../components/Modal";
 
+/* ================= API (INLINE, VERCEL SAFE) ================= */
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+});
+
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 export default function GymOwnerManagement() {
   const [owners, setOwners] = useState([]);
   const [editOwner, setEditOwner] = useState(null);
 
-  // 🔧 FIXED FORM STATE (no comment inside object)
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -16,17 +31,15 @@ export default function GymOwnerManagement() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
 
-  const token = localStorage.getItem("token");
-
   /* LOAD OWNERS */
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/gym-owners", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    api
+      .get("/gym-owners")
       .then((res) => setOwners(res.data))
-      .catch((err) => console.log("LOAD ERROR", err));
-  }, [token]);
+      .catch((err) =>
+        console.log("LOAD ERROR", err.response?.data || err.message)
+      );
+  }, []);
 
   /* ADD OWNER */
   const addOwner = () => {
@@ -35,41 +48,34 @@ export default function GymOwnerManagement() {
       return;
     }
 
-    axios
-      .post(
-        "http://localhost:5000/gym-owners",
-        form,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+    api
+      .post("/gym-owners", form)
       .then((res) => {
         setOwners([res.data.owner, ...owners]);
         setForm({ name: "", email: "", status: "Active" });
       })
       .catch((err) => {
-        console.log("ADD ERROR", err);
+        console.log("ADD ERROR", err.response?.data || err.message);
         alert("Add failed");
       });
   };
 
   /* DELETE */
   const deleteOwner = (id) => {
-    axios
-      .delete(`http://localhost:5000/gym-owners/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    api
+      .delete(`/gym-owners/${id}`)
       .then(() => {
         setOwners(owners.filter((o) => o._id !== id));
-      });
+      })
+      .catch((err) =>
+        console.log("DELETE ERROR", err.response?.data || err.message)
+      );
   };
 
   /* UPDATE */
   const updateOwner = () => {
-    axios
-      .put(
-        `http://localhost:5000/gym-owners/${editOwner._id}`,
-        editOwner,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+    api
+      .put(`/gym-owners/${editOwner._id}`, editOwner)
       .then((res) => {
         setOwners(
           owners.map((o) =>
@@ -77,7 +83,10 @@ export default function GymOwnerManagement() {
           )
         );
         setEditOwner(null);
-      });
+      })
+      .catch((err) =>
+        console.log("UPDATE ERROR", err.response?.data || err.message)
+      );
   };
 
   const filteredOwners = owners.filter((o) => {
@@ -122,7 +131,9 @@ export default function GymOwnerManagement() {
 
           <select
             value={form.status}
-            onChange={(e) => setForm({ ...form, status: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, status: e.target.value })
+            }
             className="border px-3 py-2 rounded-md"
           >
             <option>Active</option>
