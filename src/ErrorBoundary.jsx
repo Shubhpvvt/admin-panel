@@ -3,33 +3,35 @@ import React from "react";
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { crashed: false };
   }
 
-  static getDerivedStateFromError(error) {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    console.error("App crashed:", error, errorInfo);
+  static getDerivedStateFromError() {
+    return { crashed: true };
   }
 
   render() {
-    if (this.state.hasError) {
+    if (this.state.crashed) {
       return (
         <div style={{
-          minHeight: "100vh",
+          height: "100vh",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          fontFamily: "sans-serif"
+          fontFamily: "Arial"
         }}>
           <h2>Something went wrong</h2>
           <p>Please reload the page</p>
           <button
             onClick={() => window.location.reload()}
-            style={{ padding: "10px 16px", marginTop: 10 }}
+            style={{
+              padding: "10px 16px",
+              background: "#111",
+              color: "#fff",
+              border: "none",
+              borderRadius: "6px"
+            }}
           >
             Reload
           </button>
