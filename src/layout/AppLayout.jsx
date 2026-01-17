@@ -7,6 +7,9 @@ export default function AppLayout({ children }) {
   const navigate = useNavigate();
 
   const logout = () => {
+    // 🔥 CLEAR AUTH
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/");
   };
 
@@ -22,22 +25,15 @@ export default function AppLayout({ children }) {
           lg:translate-x-0 lg:static
         `}
       >
-        <Sidebar closeSidebar={() => setSidebarOpen(false)} />
+        <Sidebar />
       </div>
-
-      {/* MOBILE OVERLAY */}
-      {sidebarOpen && (
-        <div
-          onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 bg-black/40 z-30 lg:hidden"
-        />
-      )}
 
       {/* MAIN AREA */}
       <div className="flex-1 flex flex-col relative">
 
         {/* HEADER */}
         <header className="h-12 flex items-center px-4 sm:px-6">
+          {/* MOBILE MENU */}
           <span
             onClick={() => setSidebarOpen(true)}
             className="lg:hidden cursor-pointer text-slate-700 font-semibold"
@@ -45,17 +41,29 @@ export default function AppLayout({ children }) {
             ☰
           </span>
 
+          {/* RIGHT */}
           <div className="ml-auto flex items-center gap-2 text-sm">
-            <span className="text-slate-800 font-medium">Admin</span>
+            <span className="text-slate-800 font-medium">
+              Admin
+            </span>
             <span className="text-slate-400">/</span>
             <span
               onClick={logout}
               className="cursor-pointer text-slate-600 hover:text-red-600 transition"
+              title="Logout"
             >
               Logout ↪
             </span>
           </div>
         </header>
+
+        {/* MOBILE OVERLAY */}
+        {sidebarOpen && (
+          <div
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+          />
+        )}
 
         {/* PAGE CONTENT */}
         <main className="flex-1 p-4 sm:p-6">
