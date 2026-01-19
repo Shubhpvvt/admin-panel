@@ -7,9 +7,6 @@ export default function AppLayout({ children }) {
   const navigate = useNavigate();
 
   const logout = () => {
-    // 🔥 CLEAR AUTH
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
     navigate("/");
   };
 
@@ -31,9 +28,10 @@ export default function AppLayout({ children }) {
       {/* MAIN AREA */}
       <div className="flex-1 flex flex-col relative">
 
-        {/* HEADER */}
+        {/* HEADER (NO BORDER, NO BG, NO BOX) */}
         <header className="h-12 flex items-center px-4 sm:px-6">
-          {/* MOBILE MENU */}
+
+          {/* LEFT: MENU (MOBILE ONLY) */}
           <span
             onClick={() => setSidebarOpen(true)}
             className="lg:hidden cursor-pointer text-slate-700 font-semibold"
@@ -41,12 +39,14 @@ export default function AppLayout({ children }) {
             ☰
           </span>
 
-          {/* RIGHT */}
+          {/* RIGHT: ADMIN / LOGOUT (NAKED TEXT) */}
           <div className="ml-auto flex items-center gap-2 text-sm">
             <span className="text-slate-800 font-medium">
               Admin
             </span>
+
             <span className="text-slate-400">/</span>
+
             <span
               onClick={logout}
               className="cursor-pointer text-slate-600 hover:text-red-600 transition"

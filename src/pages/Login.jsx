@@ -22,30 +22,36 @@ export default function Login() {
     try {
       setLoading(true);
 
-      // ✅ ONLY CHANGE: removed withCredentials
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/auth/login`,
         { email, password }
       );
 
-      // token + user save
+      // ===== SAVE TOKEN =====
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);
       }
 
+      // ===== SAVE USER =====
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      const role = res.data.user.role;
+      // ===== 🔥 ROLE NORMALIZATION FIX =====
+      const backendRole = res.data.user.role;
 
-      if (role === "superAdmin") {
-        navigate("/dashboard");
-      } else if (role === "gymOwner") {
-        navigate("/dashboard/gym-owner");
-      } else if (role === "trainer") {
-        navigate("/dashboard/trainer");
-      } else {
-        navigate("/dashboard/user");
-      }
+      const roleMap = {
+        superAdmin: "SUPER_ADMIN",
+        gymOwner: "GYM_OWNER",
+        trainer: "TRAINER",
+        user: "USER",
+      };
+
+      const role = roleMap[backendRole];
+
+      // IMPORTANT: save normalized role
+      localStorage.setItem("role", role);
+
+      // ===== REDIRECT =====
+      navigate("/dashboard");
 
     } catch (err) {
       console.log("LOGIN ERROR:", err);
@@ -57,7 +63,6 @@ export default function Login() {
 
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-slate-100">
-
       {/* LEFT BRAND */}
       <div className="hidden lg:flex flex-col justify-between bg-gradient-to-br from-slate-900 to-slate-800 text-white p-12">
         <div>

@@ -27,5 +27,6 @@ app.use("/dashboard", dashboardRoutes);
 app.use("/gym-owners", gymOwnerRoutes);
 app.use("/trainers", trainerRoutes);
 app.use("/gyms", gymRoutes);
+app.use("/users", require("./routes/userRoutes"));
 
 module.exports = app;

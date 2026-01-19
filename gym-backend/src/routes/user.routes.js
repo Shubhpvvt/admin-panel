@@ -1,8 +1,10 @@
-const router = require("express").Router();
-const auth = require("../middleware/auth.middleware");
-const controller = require("../controllers/user.controller");
+const express = require("express");
+const router = express.Router();
 
-router.get("/", auth, controller.getUsers);
-router.put("/:id", auth, controller.updateUser);
+const { createUser } = require("../controllers/userController");
+const { protect } = require("../middleware/authMiddleware");
+
+// Super Admin / Gym Owner → Create User
+router.post("/", protect, createUser);
 
 module.exports = router;
