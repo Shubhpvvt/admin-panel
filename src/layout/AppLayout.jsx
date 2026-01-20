@@ -7,7 +7,10 @@ export default function AppLayout({ children }) {
   const navigate = useNavigate();
 
   const logout = () => {
-    navigate("/");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("role");
+    navigate("/", { replace: true });
   };
 
   return (
@@ -28,7 +31,7 @@ export default function AppLayout({ children }) {
       {/* MAIN AREA */}
       <div className="flex-1 flex flex-col relative">
 
-        {/* HEADER (NO BORDER, NO BG, NO BOX) */}
+        {/* HEADER */}
         <header className="h-12 flex items-center px-4 sm:px-6">
 
           {/* LEFT: MENU (MOBILE ONLY) */}
@@ -39,10 +42,10 @@ export default function AppLayout({ children }) {
             ☰
           </span>
 
-          {/* RIGHT: ADMIN / LOGOUT (NAKED TEXT) */}
+          {/* RIGHT: ROLE / LOGOUT */}
           <div className="ml-auto flex items-center gap-2 text-sm">
             <span className="text-slate-800 font-medium">
-              Admin
+              {JSON.parse(localStorage.getItem("user"))?.role || "User"}
             </span>
 
             <span className="text-slate-400">/</span>

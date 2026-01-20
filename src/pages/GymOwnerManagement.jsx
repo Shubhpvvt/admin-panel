@@ -16,13 +16,23 @@ api.interceptors.request.use((config) => {
 });
 
 export default function GymOwnerManagement() {
+  // 🔐 ROLE GUARD (IMPORTANT)
+  const role = localStorage.getItem("role");
+  if (role !== "SUPER_ADMIN") {
+    return (
+      <div className="text-red-600 font-semibold">
+        Access Denied
+      </div>
+    );
+  }
+
   const [owners, setOwners] = useState([]);
   const [editOwner, setEditOwner] = useState(null);
 
   const [form, setForm] = useState({
     name: "",
     email: "",
-    password: "",   // 🔥 IMPORTANT
+    password: "",
     status: "Active",
   });
 
@@ -46,14 +56,11 @@ export default function GymOwnerManagement() {
       return;
     }
 
-    // 🔍 DEBUG (optional – remove later)
-    console.log("CREATING OWNER:", form);
-
     api
       .post("/gym-owners", {
         name: form.name,
         email: form.email,
-        password: form.password, // 🔥 PASSWORD SENT
+        password: form.password,
         status: form.status,
       })
       .then((res) => {
@@ -66,7 +73,6 @@ export default function GymOwnerManagement() {
         });
       })
       .catch((err) => {
-        console.log("ADD ERROR", err.response?.data || err.message);
         alert(err.response?.data?.message || "Add failed");
       });
   };
@@ -78,15 +84,19 @@ export default function GymOwnerManagement() {
       .then(() => {
         setOwners(owners.filter((o) => o._id !== id));
       })
-      .catch((err) =>
-        console.log("DELETE ERROR", err.response?.data || err.message)
-      );
+      .catch(() => alert("Delete failed"));
   };
 
-  /* ================= UPDATE ================= */
+  /* ================= UPDATE (NO PASSWORD TOUCH) ================= */
   const updateOwner = () => {
+    const { name, email, status } = editOwner;
+
     api
-      .put(`/gym-owners/${editOwner._id}`, editOwner)
+      .put(`/gym-owners/${editOwner._id}`, {
+        name,
+        email,
+        status,
+      })
       .then((res) => {
         setOwners(
           owners.map((o) =>
@@ -95,9 +105,7 @@ export default function GymOwnerManagement() {
         );
         setEditOwner(null);
       })
-      .catch((err) =>
-        console.log("UPDATE ERROR", err.response?.data || err.message)
-      );
+      .catch(() => alert("Update failed"));
   };
 
   const filteredOwners = owners.filter((o) => {
@@ -112,7 +120,7 @@ export default function GymOwnerManagement() {
   });
 
   return (
-    <div className="space-y-8 relative z-0 pointer-events-auto">
+    <div className="space-y-8">
       {/* HEADER */}
       <div>
         <h1 className="text-2xl font-bold">Gym Owner Management</h1>
@@ -122,7 +130,7 @@ export default function GymOwnerManagement() {
       </div>
 
       {/* ADD OWNER */}
-      <div className="bg-white p-6 rounded-xl shadow pointer-events-auto">
+      <div className="bg-white p-6 rounded-xl shadow">
         <h2 className="text-lg font-semibold mb-4">Add Gym Owner</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
@@ -162,37 +170,16 @@ export default function GymOwnerManagement() {
           </select>
 
           <button
-            type="button"
             onClick={addOwner}
-            className="bg-slate-900 text-white px-5 py-2 rounded-md hover:bg-slate-800"
+            className="bg-slate-900 text-white px-5 py-2 rounded-md"
           >
             Add Owner
           </button>
         </div>
       </div>
 
-      {/* SEARCH */}
-      <div className="flex gap-3">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name or email"
-          className="border px-3 py-2 rounded-md w-full"
-        />
-
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-          className="border px-3 py-2 rounded-md"
-        >
-          <option value="All">All</option>
-          <option>Active</option>
-          <option>Inactive</option>
-        </select>
-      </div>
-
       {/* LIST */}
-      <div className="bg-white p-6 rounded-xl shadow pointer-events-auto">
+      <div className="bg-white p-6 rounded-xl shadow">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b text-left text-slate-500">

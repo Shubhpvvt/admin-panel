@@ -1,10 +1,24 @@
 import { NavLink } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const linkClass =
   "block px-3 py-2 rounded text-sm hover:bg-slate-800";
 
 export default function Sidebar() {
-  const role = localStorage.getItem("role");
+  const [role, setRole] = useState(localStorage.getItem("role"));
+
+  useEffect(() => {
+    const syncRole = () => {
+      setRole(localStorage.getItem("role"));
+    };
+
+    // sync on load
+    syncRole();
+
+    // sync on logout / login (storage change)
+    window.addEventListener("storage", syncRole);
+    return () => window.removeEventListener("storage", syncRole);
+  }, []);
 
   return (
     <aside className="w-64 bg-slate-900 text-white min-h-screen p-4">
