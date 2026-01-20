@@ -7,26 +7,20 @@ const dashboardRoutes = require("./routes/dashboard.routes");
 const gymOwnerRoutes = require("./routes/gymOwner.routes");
 const trainerRoutes = require("./routes/trainer.routes");
 const gymRoutes = require("./routes/gym.routes");
+const userRoutes = require("./routes/user.routes");
 
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
 
-// ✅ FINAL SIMPLE CORS (TOKEN BASED)
-app.use(
-  cors({
-    origin: "*"
-  })
-);
-
-// ❌ REMOVE app.options("*", cors());  (NOT NEEDED)
+app.use(cors({ origin: "*" }));
 
 app.use("/auth", authRoutes);
 app.use("/dashboard", dashboardRoutes);
 app.use("/gym-owners", gymOwnerRoutes);
 app.use("/trainers", trainerRoutes);
 app.use("/gyms", gymRoutes);
-app.use("/users", require("./routes/userRoutes"));
+app.use("/users", userRoutes);
 
 module.exports = app;

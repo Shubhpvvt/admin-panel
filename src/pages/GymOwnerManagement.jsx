@@ -2,21 +2,18 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Modal from "../components/Modal";
 
-/* ================= API (INLINE, VERCEL SAFE) ================= */
+/* ================= API ================= */
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
 });
 
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 export default function GymOwnerManagement() {
   const [owners, setOwners] = useState([]);
@@ -25,13 +22,14 @@ export default function GymOwnerManagement() {
   const [form, setForm] = useState({
     name: "",
     email: "",
+    password: "",   // 🔥 IMPORTANT
     status: "Active",
   });
 
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
 
-  /* LOAD OWNERS */
+  /* ================= LOAD OWNERS ================= */
   useEffect(() => {
     api
       .get("/gym-owners")
@@ -41,26 +39,39 @@ export default function GymOwnerManagement() {
       );
   }, []);
 
-  /* ADD OWNER */
+  /* ================= ADD OWNER ================= */
   const addOwner = () => {
-    if (!form.name || !form.email) {
-      alert("Name & Email required");
+    if (!form.name || !form.email || !form.password) {
+      alert("Name, Email and Password required");
       return;
     }
 
+    // 🔍 DEBUG (optional – remove later)
+    console.log("CREATING OWNER:", form);
+
     api
-      .post("/gym-owners", form)
+      .post("/gym-owners", {
+        name: form.name,
+        email: form.email,
+        password: form.password, // 🔥 PASSWORD SENT
+        status: form.status,
+      })
       .then((res) => {
         setOwners([res.data.owner, ...owners]);
-        setForm({ name: "", email: "", status: "Active" });
+        setForm({
+          name: "",
+          email: "",
+          password: "",
+          status: "Active",
+        });
       })
       .catch((err) => {
         console.log("ADD ERROR", err.response?.data || err.message);
-        alert("Add failed");
+        alert(err.response?.data?.message || "Add failed");
       });
   };
 
-  /* DELETE */
+  /* ================= DELETE ================= */
   const deleteOwner = (id) => {
     api
       .delete(`/gym-owners/${id}`)
@@ -72,7 +83,7 @@ export default function GymOwnerManagement() {
       );
   };
 
-  /* UPDATE */
+  /* ================= UPDATE ================= */
   const updateOwner = () => {
     api
       .put(`/gym-owners/${editOwner._id}`, editOwner)
@@ -114,7 +125,7 @@ export default function GymOwnerManagement() {
       <div className="bg-white p-6 rounded-xl shadow pointer-events-auto">
         <h2 className="text-lg font-semibold mb-4">Add Gym Owner</h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
           <input
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -126,6 +137,16 @@ export default function GymOwnerManagement() {
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
             placeholder="Email address"
+            className="border px-3 py-2 rounded-md"
+          />
+
+          <input
+            type="password"
+            value={form.password}
+            onChange={(e) =>
+              setForm({ ...form, password: e.target.value })
+            }
+            placeholder="Password"
             className="border px-3 py-2 rounded-md"
           />
 
