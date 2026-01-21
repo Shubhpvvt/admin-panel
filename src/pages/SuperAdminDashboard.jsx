@@ -17,14 +17,21 @@ export default function SuperAdminDashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
 
-    // ❌ no token → login
+    // 🔐 NO TOKEN → LOGIN
     if (!token) {
-      navigate("/login");
+      navigate("/");
       return;
     }
 
-    // ✅ CORRECT API CALL (ENV BASED)
+    // 🔥 ROLE GUARD (CORRECT WAY)
+    if (role !== "SUPER_ADMIN") {
+      navigate("/"); // ❗ dashboard sirf super admin ke liye
+      return;
+    }
+
+    // ✅ API CALL
     axios
       .get(`${import.meta.env.VITE_API_URL}/dashboard`, {
         headers: {

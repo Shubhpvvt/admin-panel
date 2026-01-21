@@ -1,21 +1,19 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 
 export default function AppLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const navigate = useNavigate();
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("role");
-    navigate("/", { replace: true });
+    // 🔥 CLEAR COMPLETE SESSION
+    localStorage.clear();
+
+    // 🔥 HARD RELOAD (CACHE + ROLE FIX)
+    window.location.href = "/";
   };
 
   return (
     <div className="min-h-screen bg-slate-100 flex">
-
       {/* SIDEBAR */}
       <div
         className={`
@@ -30,10 +28,8 @@ export default function AppLayout({ children }) {
 
       {/* MAIN AREA */}
       <div className="flex-1 flex flex-col relative">
-
         {/* HEADER */}
         <header className="h-12 flex items-center px-4 sm:px-6">
-
           {/* LEFT: MENU (MOBILE ONLY) */}
           <span
             onClick={() => setSidebarOpen(true)}

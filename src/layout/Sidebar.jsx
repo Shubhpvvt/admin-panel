@@ -5,20 +5,14 @@ const linkClass =
   "block px-3 py-2 rounded text-sm hover:bg-slate-800";
 
 export default function Sidebar() {
-  const [role, setRole] = useState(localStorage.getItem("role"));
+  const [role, setRole] = useState(null);
 
   useEffect(() => {
-    const syncRole = () => {
-      setRole(localStorage.getItem("role"));
-    };
-
-    // sync on load
-    syncRole();
-
-    // sync on logout / login (storage change)
-    window.addEventListener("storage", syncRole);
-    return () => window.removeEventListener("storage", syncRole);
+    const currentRole = localStorage.getItem("role");
+    setRole(currentRole);
   }, []);
+
+  if (!role) return null;
 
   return (
     <aside className="w-64 bg-slate-900 text-white min-h-screen p-4">
@@ -30,10 +24,13 @@ export default function Sidebar() {
       </h2>
 
       <nav className="space-y-1">
-        {/* ================= COMMON ================= */}
-        <NavLink to="/dashboard" className={linkClass}>
-          Dashboard
-        </NavLink>
+
+        {/* ✅ DASHBOARD – ONLY SUPER ADMIN */}
+        {role === "SUPER_ADMIN" && (
+          <NavLink to="/dashboard" className={linkClass}>
+            Dashboard
+          </NavLink>
+        )}
 
         {/* ================= SUPER ADMIN ================= */}
         {role === "SUPER_ADMIN" && (

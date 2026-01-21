@@ -28,30 +28,43 @@ export default function Login() {
       );
 
       // ===== SAVE TOKEN =====
-      if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
-      }
+     // ===== 🔥 CLEAR OLD SESSION (VERY IMPORTANT) =====
+// 🔥 CLEAR OLD SESSION
+localStorage.clear();
 
-      // ===== SAVE USER =====
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+// SAVE TOKEN
+if (res.data.token) {
+  localStorage.setItem("token", res.data.token);
+}
 
-      // ===== 🔥 ROLE NORMALIZATION FIX =====
-      const backendRole = res.data.user.role;
+// SAVE USER
+localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      const roleMap = {
-        superAdmin: "SUPER_ADMIN",
-        gymOwner: "GYM_OWNER",
-        trainer: "TRAINER",
-        user: "USER",
-      };
+// ROLE NORMALIZATION
+const backendRole = res.data.user.role;
 
-      const role = roleMap[backendRole];
+const roleMap = {
+  superAdmin: "SUPER_ADMIN",
+  gymOwner: "GYM_OWNER",
+  trainer: "TRAINER",
+  user: "USER",
+};
 
-      // IMPORTANT: save normalized role
-      localStorage.setItem("role", role);
+const role = roleMap[backendRole];
+localStorage.setItem("role", role);
 
-      // ===== REDIRECT =====
-      navigate("/dashboard");
+// ✅ ROLE BASED REDIRECT (FIX)
+if (role === "SUPER_ADMIN") {
+  window.location.href = "/dashboard";
+} else if (role === "GYM_OWNER") {
+  window.location.href = "/trainers";
+} else if (role === "TRAINER") {
+  window.location.href = "/workout-plans";
+} else {
+  window.location.href = "/";
+}
+
+
 
     } catch (err) {
       console.log("LOGIN ERROR:", err);

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Modal from "../components/Modal";
 
@@ -16,15 +17,22 @@ api.interceptors.request.use((config) => {
 });
 
 export default function GymOwnerManagement() {
-  // 🔐 ROLE GUARD (IMPORTANT)
-  const role = localStorage.getItem("role");
-  if (role !== "SUPER_ADMIN") {
-    return (
-      <div className="text-red-600 font-semibold">
-        Access Denied
-      </div>
-    );
-  }
+  const navigate = useNavigate();
+
+  /* 🔐 ROLE + TOKEN GUARD (MAIN FIX) */
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if (!token) {
+      navigate("/");
+      return;
+    }
+
+    if (role !== "SUPER_ADMIN") {
+      navigate("/"); // ⛔ only super admin allowed
+    }
+  }, [navigate]);
 
   const [owners, setOwners] = useState([]);
   const [editOwner, setEditOwner] = useState(null);
@@ -87,7 +95,7 @@ export default function GymOwnerManagement() {
       .catch(() => alert("Delete failed"));
   };
 
-  /* ================= UPDATE (NO PASSWORD TOUCH) ================= */
+  /* ================= UPDATE ================= */
   const updateOwner = () => {
     const { name, email, status } = editOwner;
 
